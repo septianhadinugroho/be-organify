@@ -1,4 +1,4 @@
-const db = require('./firebase');
+const db = require('./mongodb');
 
 // Handler untuk membuat catatan baru
 const createCatatanHandler = async (request, h) => {
