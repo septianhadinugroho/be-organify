@@ -2,9 +2,11 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const mongoose = require('mongoose');
-const routes = require('./routes');
+const Jwt = require('hapi-auth-jwt2');
 
-// Koneksi ke MongoDB
+const routes = require('./routes');
+const userRoutes = require('./routes/userRoutes');
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB Atlas'))
   .catch((err) => console.error('MongoDB connection error:', err));
@@ -20,8 +22,18 @@ const init = async () => {
     }
   });
 
-  // Register routes
-  server.route(routes);
+  // JWT Auth setup
+  await server.register(Jwt);
+  server.auth.strategy('jwt', 'jwt', {
+    key: process.env.JWT_SECRET,
+    validate: async (decoded, request, h) => {
+      return { isValid: true };
+    },
+    verifyOptions: { algorithms: ['HS256'] }
+  });
+
+  // Register all routes
+  server.route([...routes, ...userRoutes]);
 
   // Default route
   server.route({
