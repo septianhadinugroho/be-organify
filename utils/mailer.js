@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendOtpEmail = async (email, otp, token) => {
-  const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${token}`;
+  const verificationLink = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
 
   const mailOptions = {
     from: `"Organify Support" <${process.env.EMAIL_USER}>`,
