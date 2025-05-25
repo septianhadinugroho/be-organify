@@ -21,26 +21,33 @@ const sendOtpEmail = async (email, otp, token) => {
           <h1 style="color: #2e7d32; text-align: center; margin-bottom: 25px; font-size: 24px;">Verifikasi Email Organify</h1>
           
           <p style="font-size: 16px; line-height: 1.6; color: #333;">Hai,</p>
-          <p style="font-size: 16px; line-height: 1.6; color: #333;">Terima kasih telah bergabung dengan <strong>Organify</strong>! Untuk mulai menggunakan akun Anda, verifikasi alamat email ini dengan kode OTP berikut:</p>
+          <p style="font-size: 16px; line-height: 1.6; color: #333;">Terima kasih telah bergabung dengan <strong>Organify</strong>! Verifikasi email Anda dengan klik tombol berikut:</p>
 
-          <div style="background-color: #e8f5e9; padding: 20px; border-radius: 8px; margin: 25px 0; text-align: center;">
-            <p style="margin: 0 0 10px 0; font-size: 14px; color: #555;">Kode Verifikasi (berlaku 10 menit):</p>
+          <!-- Verifikasi Link (Posisi Atas) -->
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verificationLink}" style="background-color: #2e7d32; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Verifikasi Email Sekarang
+            </a>
+          </div>
+
+          <p style="text-align: center; font-size: 15px; margin: 15px 0; color: #555;">Atau gunakan kode verifikasi manual di bawah ini:</p>
+
+          <!-- Manual OTP (Posisi Bawah) -->
+          <div style="background-color: #e8f5e9; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+            <p style="margin: 0 0 10px 0; font-size: 14px; color: #555;">Kode Verifikasi Manual (berlaku 10 menit):</p>
             <span style="display: inline-block; background-color: #2e7d32; color: white; padding: 12px 20px; font-size: 22px; letter-spacing: 3px; border-radius: 6px; font-weight: bold;">
               ${otp}
             </span>
           </div>
 
-          <p style="text-align: center; font-size: 15px; margin: 25px 0; color: #555;">Atau klik tombol di bawah untuk verifikasi otomatis:</p>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationLink}" style="background-color: #2e7d32; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
-              Verifikasi Email Sekarang
-            </a>
-          </div>
-
           <div style="background-color: #fff3e0; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffa000;">
             <p style="margin: 0; font-size: 14px; color: #e65100;">
-              <strong>💡 Tips:</strong> Jika tidak menemukan email ini, periksa folder <strong>spam</strong> atau <strong>promosi</strong>. Tambahkan <strong>${process.env.EMAIL_USER}</strong> ke kontak Anda untuk memastikan email kami selalu masuk ke inbox.
+              <strong>💡 Tips:</strong> 
+              <ul style="margin: 5px 0; padding-left: 20px;">
+                <li>Tombol verifikasi akan langsung mengaktifkan akun Anda</li>
+                <li>Jika tombol tidak bekerja, salin kode manual di atas</li>
+                <li>Periksa folder spam jika email tidak ditemukan</li>
+              </ul>
             </p>
           </div>
 
