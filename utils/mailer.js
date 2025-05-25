@@ -8,7 +8,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-const sendOtpEmail = async (email, otp, token) => {
+const sendVerificationEmail = async (email, token) => {
   const verificationLink = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
 
   const mailOptions = {
@@ -20,15 +20,7 @@ const sendOtpEmail = async (email, otp, token) => {
         <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 12px; padding: 30px; box-shadow: 0 0 20px rgba(0,0,0,0.05);">
           <h2 style="color: #43a047; text-align: center;">Verifikasi Email Anda</h2>
           <p style="font-size: 16px;">Hai,</p>
-          <p>Terima kasih telah mendaftar ke <strong>Organify</strong>! Untuk mengaktifkan akun Anda, silakan gunakan kode OTP berikut <strong>(berlaku 10 menit)</strong>:</p>
-
-          <div style="text-align: center; margin: 20px 0;">
-            <span style="display: inline-block; background-color: #e6f4ea; color: #2e7d32; padding: 15px 25px; font-size: 24px; letter-spacing: 4px; border-radius: 8px;">
-              ${otp}
-            </span>
-          </div>
-
-          <p style="text-align: center; font-size: 14px;">Atau klik tombol di bawah untuk langsung verifikasi:</p>
+          <p>Terima kasih telah mendaftar ke <strong>Organify</strong>! Untuk mengaktifkan akun Anda, klik tombol di bawah ini:</p>
 
           <div style="text-align: center; margin: 30px 0;">
             <a href="${verificationLink}" style="background-color: #81c784; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
@@ -36,8 +28,12 @@ const sendOtpEmail = async (email, otp, token) => {
             </a>
           </div>
 
+          <p style="font-size: 14px; text-align: center; color: #666;">
+            Link ini akan kedaluwarsa dalam <strong>10 menit</strong>.
+          </p>
+
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;" />
-          <p style="font-size: 13px; color: #888;">Jika Anda tidak merasa mendaftar, abaikan email ini. Jangan bagikan kode atau link ini kepada siapa pun.</p>
+          <p style="font-size: 13px; color: #888;">Jika Anda tidak merasa mendaftar, abaikan email ini. Jangan bagikan link ini kepada siapa pun.</p>
         </div>
       </div>
     `
@@ -46,4 +42,4 @@ const sendOtpEmail = async (email, otp, token) => {
   await transporter.sendMail(mailOptions);
 };
 
-module.exports = { sendOtpEmail };
+module.exports = { sendVerificationEmail };
