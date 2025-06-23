@@ -3,6 +3,8 @@ const Catatan = require('../models/catatan');
 // Handler untuk membuat catatan baru
 const createCatatanHandler = async (request, h) => {
   const { kategori, namaList, tanggalDeadline, status } = request.payload;
+  // MODIFIKASI: Ambil ID user dari token JWT
+  const userId = request.auth.credentials.id;
   
   try {
     const newCatatan = new Catatan({
@@ -10,6 +12,7 @@ const createCatatanHandler = async (request, h) => {
       namaList,
       tanggalDeadline: new Date(tanggalDeadline),
       status: status || false,
+      user: userId, // MODIFIKASI: Sertakan ID user saat membuat data
     });
     
     const savedCatatan = await newCatatan.save();
@@ -27,10 +30,13 @@ const createCatatanHandler = async (request, h) => {
   }
 };
 
-// Handler untuk membaca semua catatan
+// Handler untuk membaca semua catatan milik user
 const getCatatansHandler = async (request, h) => {
+  // MODIFIKASI: Ambil ID user dari token JWT
+  const userId = request.auth.credentials.id;
   try {
-    const catatans = await Catatan.find();
+    // MODIFIKASI: Filter catatan berdasarkan ID user
+    const catatans = await Catatan.find({ user: userId });
     
     return h.response({
       status: 'success',
@@ -52,12 +58,15 @@ const getCatatansHandler = async (request, h) => {
   }
 };
 
-// Handler untuk membaca satu catatan berdasarkan ID
+// Handler untuk membaca satu catatan berdasarkan ID milik user
 const getCatatanByIdHandler = async (request, h) => {
   const { id } = request.params;
+  // MODIFIKASI: Ambil ID user dari token JWT
+  const userId = request.auth.credentials.id;
   
   try {
-    const catatan = await Catatan.findById(id);
+    // MODIFIKASI: Cari catatan berdasarkan ID dan ID user
+    const catatan = await Catatan.findOne({ _id: id, user: userId });
     
     if (!catatan) {
       return h.response({
@@ -86,10 +95,12 @@ const getCatatanByIdHandler = async (request, h) => {
   }
 };
 
-// Handler untuk memperbarui catatan
+// Handler untuk memperbarui catatan milik user
 const updateCatatanHandler = async (request, h) => {
   const { id } = request.params;
   const { kategori, namaList, tanggalDeadline, status } = request.payload;
+  // MODIFIKASI: Ambil ID user dari token JWT
+  const userId = request.auth.credentials.id;
   
   try {
     const updatedData = {};
@@ -99,8 +110,9 @@ const updateCatatanHandler = async (request, h) => {
     if (tanggalDeadline) updatedData.tanggalDeadline = new Date(tanggalDeadline);
     if (typeof status !== 'undefined') updatedData.status = status;
     
-    const catatan = await Catatan.findByIdAndUpdate(
-      id,
+    // MODIFIKASI: Update catatan berdasarkan ID dan ID user
+    const catatan = await Catatan.findOneAndUpdate(
+      { _id: id, user: userId },
       updatedData,
       { new: true, runValidators: true }
     );
@@ -108,7 +120,7 @@ const updateCatatanHandler = async (request, h) => {
     if (!catatan) {
       return h.response({
         status: 'fail',
-        message: 'Catatan tidak ditemukan',
+        message: 'Gagal memperbarui catatan. Catatan tidak ditemukan atau Anda tidak memiliki izin.',
       }).code(404);
     }
     
@@ -124,17 +136,20 @@ const updateCatatanHandler = async (request, h) => {
   }
 };
 
-// Handler untuk menghapus catatan
+// Handler untuk menghapus catatan milik user
 const deleteCatatanHandler = async (request, h) => {
   const { id } = request.params;
+  // MODIFIKASI: Ambil ID user dari token JWT
+  const userId = request.auth.credentials.id;
   
   try {
-    const catatan = await Catatan.findByIdAndDelete(id);
+    // MODIFIKASI: Hapus catatan berdasarkan ID dan ID user
+    const catatan = await Catatan.findOneAndDelete({ _id: id, user: userId });
     
     if (!catatan) {
       return h.response({
         status: 'fail',
-        message: 'Catatan tidak ditemukan',
+        message: 'Gagal menghapus catatan. Catatan tidak ditemukan atau Anda tidak memiliki izin.',
       }).code(404);
     }
     
@@ -150,15 +165,16 @@ const deleteCatatanHandler = async (request, h) => {
   }
 };
 
-// Handler untuk memfilter catatan berdasarkan status dan deadline
+// Handler untuk memfilter catatan berdasarkan status dan deadline milik user
 const getFilteredCatatansHandler = async (request, h) => {
   const { status, deadlineWithin7Days } = request.query;
+  // MODIFIKASI: Ambil ID user dari token JWT
+  const userId = request.auth.credentials.id;
   
   try {
-    // Filter berdasarkan status (hanya tugas yang belum beres)
-    const filter = { status: false };
+    // MODIFIKASI: Tambahkan user ke objek filter
+    const filter = { status: false, user: userId };
     
-    // Filter berdasarkan deadline dalam 7 hari ke depan
     if (deadlineWithin7Days === 'true') {
       const today = new Date();
       const sevenDaysLater = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -195,9 +211,12 @@ const getFilteredCatatansHandler = async (request, h) => {
 const tambahTodoItemHandler = async (request, h) => {
   const { id } = request.params;
   const { judul, isi } = request.payload;
+  // MODIFIKASI: Ambil ID user dari token JWT
+  const userId = request.auth.credentials.id;
   
   try {
-    const catatan = await Catatan.findById(id);
+    // MODIFIKASI: Pastikan catatan milik user yang sedang login
+    const catatan = await Catatan.findOne({ _id: id, user: userId });
     
     if (!catatan) {
       return h.response({
@@ -206,7 +225,6 @@ const tambahTodoItemHandler = async (request, h) => {
       }).code(404);
     }
     
-    // Cek apakah sudah ada todo item
     if (catatan.todoItem) {
       return h.response({
         status: 'fail',
@@ -214,14 +232,12 @@ const tambahTodoItemHandler = async (request, h) => {
       }).code(400);
     }
     
-    // Buat todo item baru
     const todoItemBaru = {
       judul,
       isi,
       terakhirDiperbarui: new Date()
     };
     
-    // Tambahkan todo item ke catatan
     catatan.todoItem = todoItemBaru;
     await catatan.save();
     
@@ -242,9 +258,12 @@ const tambahTodoItemHandler = async (request, h) => {
 const updateTodoItemHandler = async (request, h) => {
   const { id } = request.params;
   const { judul, isi } = request.payload;
+  // MODIFIKASI: Ambil ID user dari token JWT
+  const userId = request.auth.credentials.id;
   
   try {
-    const catatan = await Catatan.findById(id);
+    // MODIFIKASI: Pastikan catatan milik user yang sedang login
+    const catatan = await Catatan.findOne({ _id: id, user: userId });
     
     if (!catatan) {
       return h.response({
@@ -253,7 +272,6 @@ const updateTodoItemHandler = async (request, h) => {
       }).code(404);
     }
     
-    // Cek apakah ada todo item
     if (!catatan.todoItem) {
       return h.response({
         status: 'fail',
@@ -261,7 +279,6 @@ const updateTodoItemHandler = async (request, h) => {
       }).code(404);
     }
     
-    // Update todo item yang ada
     if (judul) catatan.todoItem.judul = judul;
     if (isi) catatan.todoItem.isi = isi;
     catatan.todoItem.terakhirDiperbarui = new Date();
@@ -284,9 +301,12 @@ const updateTodoItemHandler = async (request, h) => {
 // Handler untuk menghapus todo item di catatan
 const hapusTodoItemHandler = async (request, h) => {
   const { id } = request.params;
+  // MODIFIKASI: Ambil ID user dari token JWT
+  const userId = request.auth.credentials.id;
   
   try {
-    const catatan = await Catatan.findById(id);
+    // MODIFIKASI: Pastikan catatan milik user yang sedang login
+    const catatan = await Catatan.findOne({ _id: id, user: userId });
     
     if (!catatan) {
       return h.response({
@@ -295,7 +315,6 @@ const hapusTodoItemHandler = async (request, h) => {
       }).code(404);
     }
     
-    // Cek apakah ada todo item
     if (!catatan.todoItem) {
       return h.response({
         status: 'fail',
@@ -303,7 +322,6 @@ const hapusTodoItemHandler = async (request, h) => {
       }).code(404);
     }
     
-    // Hapus todo item
     catatan.todoItem = undefined;
     await catatan.save();
     
@@ -319,10 +337,13 @@ const hapusTodoItemHandler = async (request, h) => {
   }
 };
 
-// Handler untuk menghapus semua catatan yang sudah beres (status true)
+// Handler untuk menghapus semua catatan yang sudah beres milik user
 const hapusCatatanBeresHandler = async (request, h) => {
+  // MODIFIKASI: Ambil ID user dari token JWT
+  const userId = request.auth.credentials.id;
   try {
-    const result = await Catatan.deleteMany({ status: true });
+    // MODIFIKASI: Hapus catatan berdasarkan status dan ID user
+    const result = await Catatan.deleteMany({ status: true, user: userId });
     
     return h.response({
       status: 'success',
