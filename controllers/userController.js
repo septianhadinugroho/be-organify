@@ -118,3 +118,26 @@ exports.deleteAccountHandler = async (request, h) => {
   await User.findByIdAndDelete(userId);
   return h.response({ message: 'Akun berhasil dihapus.' });
 };
+
+exports.getMeHandler = async (request, h) => {
+  const userId = request.auth.credentials.id; // Ambil ID dari token JWT
+
+  try {
+    // Cari pengguna berdasarkan ID dan hanya pilih field nama dan email
+    const user = await User.findById(userId).select('nama email');
+
+    if (!user) {
+      return h.response({ status: 'fail', message: 'Pengguna tidak ditemukan.' }).code(404);
+    }
+
+    // Kirim data pengguna sebagai respons
+    return h.response({
+      status: 'success',
+      data: user
+    }).code(200);
+
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    return h.response({ status: 'error', message: 'Terjadi kesalahan pada server' }).code(500);
+  }
+};

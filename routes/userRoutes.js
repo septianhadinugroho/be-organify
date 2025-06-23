@@ -85,5 +85,13 @@ module.exports = [
     options: {
       auth: 'jwt'
     }
+  },
+  {
+    method: 'GET',
+    path: '/me',
+    handler: userController.getMeHandler,
+    options: {
+      auth: 'jwt' // Endpoint ini memerlukan otentikasi
+    }
   }
 ];
