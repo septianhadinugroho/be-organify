@@ -1,24 +1,19 @@
 const Catatan = require('../models/catatan');
 
-// Handler untuk mendapatkan data grafik tugas selesai
 const getGrafikTugasSelesaiHandler = async (request, h) => {
-  const { tanggalAwal } = request.query; // Format: YYYY-MM-DD
-  
+  const { tanggalAwal } = request.query;
+  const userId = request.auth.credentials.id; // Ambil ID user
+
   try {
-    // Validasi input dilakukan oleh Joi di routes
-    
-    // Hitung rentang 7 hari dari tanggal awal
     const startDate = new Date(tanggalAwal);
     const dateRange = Array.from({ length: 7 }, (_, i) => {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
-      return date.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+      return date.toISOString().split('T')[0];
     });
-    
-    // Buat array hasil untuk grafik
+
     const grafikData = [];
-    
-    // Proses tiap tanggal dalam rentang
+
     for (const tanggal of dateRange) {
       const tanggalStart = new Date(tanggal);
       tanggalStart.setHours(0, 0, 0, 0);
@@ -26,8 +21,9 @@ const getGrafikTugasSelesaiHandler = async (request, h) => {
       const tanggalEnd = new Date(tanggal);
       tanggalEnd.setHours(23, 59, 59, 999);
       
-      // Hitung tugas selesai pada tanggal tersebut
+      // Hitung tugas selesai pada tanggal tersebut milik user
       const jumlahTugasSelesai = await Catatan.countDocuments({
+        user: userId, // Tambahkan filter user
         tanggalDeadline: {
           $gte: tanggalStart,
           $lte: tanggalEnd
@@ -42,18 +38,10 @@ const getGrafikTugasSelesaiHandler = async (request, h) => {
       });
     }
     
-    return h.response({
-      status: 'success',
-      data: grafikData,
-    }).code(200);
+    return h.response({ status: 'success', data: grafikData }).code(200);
   } catch (error) {
-    return h.response({
-      status: 'error',
-      message: `Gagal mengambil data grafik: ${error.message}`,
-    }).code(500);
+    return h.response({ status: 'error', message: `Gagal mengambil data grafik: ${error.message}` }).code(500);
   }
 };
 
-module.exports = {
-  getGrafikTugasSelesaiHandler
-};
+module.exports = { getGrafikTugasSelesaiHandler };

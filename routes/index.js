@@ -10,6 +10,7 @@ const routes = [
     path: '/catatan',
     handler: catatanController.createCatatanHandler,
     options: {
+      auth: 'jwt', // Tambahkan otentikasi
       validate: {
         payload: Joi.object({
           kategori: Joi.string().required(),
@@ -23,13 +24,15 @@ const routes = [
   {
     method: 'GET',
     path: '/catatan',
-    handler: catatanController.getCatatansHandler
+    handler: catatanController.getCatatansHandler,
+    options: { auth: 'jwt' } // Tambahkan otentikasi
   },
   {
     method: 'GET',
     path: '/catatan/{id}',
     handler: catatanController.getCatatanByIdHandler,
     options: {
+      auth: 'jwt', // Tambahkan otentikasi
       validate: {
         params: Joi.object({
           id: Joi.string().required()
@@ -42,6 +45,7 @@ const routes = [
     path: '/catatan/{id}',
     handler: catatanController.updateCatatanHandler,
     options: {
+      auth: 'jwt', // Tambahkan otentikasi
       validate: {
         params: Joi.object({
           id: Joi.string().required()
@@ -60,6 +64,7 @@ const routes = [
     path: '/catatan/{id}',
     handler: catatanController.deleteCatatanHandler,
     options: {
+      auth: 'jwt', // Tambahkan otentikasi
       validate: {
         params: Joi.object({
           id: Joi.string().required()
@@ -74,6 +79,7 @@ const routes = [
     path: '/catatan/filter',
     handler: catatanController.getFilteredCatatansHandler,
     options: {
+      auth: 'jwt', // Tambahkan otentikasi
       validate: {
         query: Joi.object({
           status: Joi.boolean().optional(),
@@ -89,10 +95,9 @@ const routes = [
     path: '/catatan/{id}/todoItem',
     handler: catatanController.tambahTodoItemHandler,
     options: {
+      auth: 'jwt', // Tambahkan otentikasi
       validate: {
-        params: Joi.object({
-          id: Joi.string().required()
-        }),
+        params: Joi.object({ id: Joi.string().required() }),
         payload: Joi.object({
           judul: Joi.string().required(),
           isi: Joi.string().required()
@@ -105,10 +110,9 @@ const routes = [
     path: '/catatan/{id}/todoItem',
     handler: catatanController.updateTodoItemHandler,
     options: {
+      auth: 'jwt', // Tambahkan otentikasi
       validate: {
-        params: Joi.object({
-          id: Joi.string().required()
-        }),
+        params: Joi.object({ id: Joi.string().required() }),
         payload: Joi.object({
           judul: Joi.string().optional(),
           isi: Joi.string().optional()
@@ -121,10 +125,9 @@ const routes = [
     path: '/catatan/{id}/todoItem',
     handler: catatanController.hapusTodoItemHandler,
     options: {
+      auth: 'jwt', // Tambahkan otentikasi
       validate: {
-        params: Joi.object({
-          id: Joi.string().required()
-        })
+        params: Joi.object({ id: Joi.string().required() })
       }
     }
   },
@@ -133,20 +136,23 @@ const routes = [
   {
     method: 'DELETE',
     path: '/catatan/hapusBeres',
-    handler: catatanController.hapusCatatanBeresHandler
+    handler: catatanController.hapusCatatanBeresHandler,
+    options: { auth: 'jwt' } // Tambahkan otentikasi
   },
   
   // Kategori routes
   {
     method: 'GET',
     path: "/kategori",
-    handler: kategoriController.getKategoriHandler
+    handler: kategoriController.getKategoriHandler,
+    options: { auth: 'jwt' } // Tambahkan otentikasi
   },
   {
     method: 'POST',
     path: "/kategori",
     handler: kategoriController.createKategoriHandler,
     options: {
+      auth: 'jwt', // Tambahkan otentikasi
       validate: {
         payload: Joi.object({
           kategori: Joi.string().required()
@@ -161,6 +167,7 @@ const routes = [
     path: '/grafik',
     handler: grafikController.getGrafikTugasSelesaiHandler,
     options: {
+      auth: 'jwt', // Tambahkan otentikasi
       validate: {
         query: Joi.object({
           tanggalAwal: Joi.string()

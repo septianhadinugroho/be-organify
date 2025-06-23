@@ -38,13 +38,20 @@ const catatanSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  todoItem: todoItemSchema
+  todoItem: todoItemSchema,
+  // TAMBAHKAN FIELD INI
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
 });
 
 // Create indexes for improved query performance
 catatanSchema.index({ status: 1 });
 catatanSchema.index({ kategori: 1 });
 catatanSchema.index({ tanggalDeadline: 1 });
+catatanSchema.index({ user: 1 }); // Tambahkan index untuk user
 
 const Catatan = mongoose.model('Catatan', catatanSchema);
 
